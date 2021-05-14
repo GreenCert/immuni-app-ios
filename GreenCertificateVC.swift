@@ -30,23 +30,21 @@ class GreenCertificateVC: ViewControllerWithLocalState<GreenCertificateView> {
             self?.changeStatus()
 
         }
-        rootView.didTapDiscoverMore = { [weak self] in
-            self?.dispatch(Logic.PermissionTutorial.ShowHowToUploadWhenPositiveAutonomous())
-        }
 
     }
     func changeStatus() {
+        self.dispatch(Hide(Screen.greenCertificate, animated: true))
         self.dispatch(Logic.Home.ShowRetriveGreenCertificate())
 
-      guard let oldStatus = self.viewModel?.status else {
-        return
-      }
-        if oldStatus == .active {
-            self.viewModel?.status = .inactive
-      }
-        else{
-            self.viewModel?.status = .active
-        }
+//      guard let oldStatus = self.viewModel?.status else {
+//        return
+//      }
+//        if oldStatus == .active {
+//            self.viewModel?.status = .inactive
+//      }
+//        else{
+//            self.viewModel?.status = .active
+//        }
     }
     
     func handleTap(on newStatus: GreenCertificateVM.StatusGreenCertificate) {

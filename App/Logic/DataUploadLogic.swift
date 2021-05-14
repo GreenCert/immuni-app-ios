@@ -194,7 +194,7 @@ extension Logic.DataUpload {
 
         try context.awaitDispatch(Hide(Screen.confirmation, animated: true))
         try context.awaitDispatch(Hide(Screen.retriveGreenCertificate, animated: true))
-//        try context.awaitDispatch(Hide(Screen.uploadData, animated: true))
+        try context.awaitDispatch(Show(Screen.greenCertificate, animated: true, context: GreenCertificateLS(greenCertificate: context.getState().user.greenCertificate)))
         }
       }
    

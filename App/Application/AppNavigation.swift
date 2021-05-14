@@ -514,7 +514,7 @@ extension HomeNC: RoutableWithConfiguration {
           return ChooseDataUploadModeVC(store: self.store, localState: ChooseDataUploadModeLS())
         },
 
-      .show(Screen.greenCertificate): .push { _ in
+      .show(Screen.greenCertificate): .presentModally { _ in
         return GreenCertificateVC(store: self.store, localState: GreenCertificateLS())
           },
       .show(Screen.retriveGreenCertificate): .push { _ in
@@ -523,7 +523,7 @@ extension HomeNC: RoutableWithConfiguration {
       .hide(Screen.uploadData): .pop,
       .hide(Screen.chooseDataUploadMode): .pop,
       .hide(Screen.uploadDataAutonomous): .pop,
-      .hide(Screen.greenCertificate): .pop,
+      .hide(Screen.greenCertificate): .dismissModally(behaviour: .hard),
       .hide(Screen.retriveGreenCertificate): .pop,
 
     ]

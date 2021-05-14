@@ -63,23 +63,23 @@ class GreenCertificateView: UIView, ViewControllerModellableView {
     private let title = UILabel()
     private let inactiveLabel = UILabel()
     
-    private var backButton = ImageButton()
     let scrollView = UIScrollView()
     private let headerView = GreenCertificateHeaderView()
 
     private let container = UIView()
-    
+    private let containerHeader = UIView()
+
     private var showQr = true
 
     private var qrCode = UIImageView()
     private var actionButton = ButtonWithInsets()
     private var stateLabel = UILabel()
+    var closeButton = ImageButton()
 
     var lineView = UIView(frame: CGRect(x: 0, y: 0, width: 1, height: 1.0))
     
     var didTapBack: Interaction?
 
-    var didTapDiscoverMore: Interaction?
     var didTapGenerate: Interaction?
 
 
@@ -87,27 +87,27 @@ class GreenCertificateView: UIView, ViewControllerModellableView {
 
     func setup() {
         addSubview(container)
+        addSubview(containerHeader)
+        containerHeader.addSubview(closeButton)
+        containerHeader.addSubview(title)
 
         container.addSubview(lineView)
         container.addSubview(stateLabel)
         container.addSubview(qrCode)
+        container.addSubview(actionButton)
 
-        addSubview(actionButton)
         addSubview(backgroundGradientView)
         addSubview(scrollView)
-        addSubview(title)
-        addSubview(backButton)
         scrollView.addSubview(actionButton)
         scrollView.addSubview(headerView)
-
         scrollView.addSubview(container)
 
-        backButton.on(.touchUpInside) { [weak self] _ in
-            self?.didTapBack?()
-           }
         actionButton.on(.touchUpInside) { [weak self] _ in
             self?.didTapGenerate?()
            }
+        closeButton.on(.touchUpInside) { [weak self] _ in
+          self?.didTapBack?()
+        }
 
        }
     // MARK: - Style
@@ -135,16 +135,18 @@ class GreenCertificateView: UIView, ViewControllerModellableView {
         Self.Style.background(self)
         Self.Style.backgroundGradient(backgroundGradientView)
         Self.Style.scrollView(scrollView)
-        Self.Style.title(title, text: "Green certificato")
+        Self.Style.title(title, text: "Il tuo Digital Green Certificate")
         Self.Style.inactiveLabel(inactiveLabel, text: "Nessun certificato attivo")
         Self.Style.container(container)
-        
+        Self.Style.containerHeader(containerHeader)
+
         lineView.layer.borderWidth = 1.0
         lineView.layer.borderColor = Palette.grayExtraWhite.cgColor
         
         Self.Style.actionButton(actionButton, icon: UIImage(systemName: "qrcode.viewfinder"))
         
-        SharedStyle.navigationBackButton(backButton)
+        SharedStyle.closeButton(self.closeButton, color: Palette.white)
+
     }
 
     // MARK: - Update
@@ -155,31 +157,25 @@ class GreenCertificateView: UIView, ViewControllerModellableView {
         }
 
         if let greenCertificate = model.greenCertificate {
+          showQr = true
           let qr = self.generateQRCode(from: greenCertificate)
           Self.Style.imageContent(qrCode, image: qr!)
           addSubview(qrCode)
           scrollView.addSubview(qrCode)
           inactiveLabel.removeFromSuperview()
+          actionButton.removeFromSuperview()
           Self.Style.stateLabel(stateLabel,text: "Attivo", color: Palette.purple)
         }
         else{
+          showQr = false
           addSubview(inactiveLabel)
           scrollView.addSubview(inactiveLabel)
+          addSubview(actionButton)
+          scrollView.addSubview(actionButton)
           qrCode.removeFromSuperview()
           Self.Style.stateLabel(stateLabel,text: "Non attivo", color: Palette.grayPurple)
         }
         
-//        showQr = model.status == .active
-//        if showQr {
-//            addSubview(qrCode)
-//            scrollView.addSubview(qrCode)
-//            inactiveLabel.removeFromSuperview()
-//        }
-//        else {
-//            addSubview(inactiveLabel)
-//            scrollView.addSubview(inactiveLabel)
-//            qrCode.removeFromSuperview()
-//        }
         Self.Style.stateLabel(stateLabel,text: model.status == .active ? "Attivo" : "Non attivo", color: model.status == .active ? Palette.purple : Palette.grayPurple)
         
         setNeedsLayout()
@@ -191,21 +187,25 @@ class GreenCertificateView: UIView, ViewControllerModellableView {
         super.layoutSubviews()
 
         backgroundGradientView.pin.all()
-
-        backButton.pin
-            .left(Self.horizontalSpacing)
-            .top(universalSafeAreaInsets.top + 20)
+        
+        containerHeader.pin
+            .horizontally()
+            .height(80)
+        
+        closeButton.pin
             .sizeToFit()
-
+            .top(25)
+            .right(25)
+        
         title.pin
-            .vCenter(to: backButton.edge.vCenter)
-            .horizontally(Self.horizontalSpacing + backButton.intrinsicContentSize.width + 5)
+            .vCenter(to: closeButton.edge.vCenter)
+            .horizontally(Self.horizontalSpacing + closeButton.intrinsicContentSize.width + 5)
             .sizeToFit(.width)
+            .marginRight(35)
 
         scrollView.pin
             .horizontally()
-            .below(of: title)
-            .marginTop(5)
+            .below(of: containerHeader)
             .bottom(universalSafeAreaInsets.bottom)
 
         headerView.pin
@@ -246,17 +246,18 @@ class GreenCertificateView: UIView, ViewControllerModellableView {
             inactiveLabel.pin
               .below(of: headerView)
               .marginTop(220)
-              .horizontally(Self.horizontalSpacing + backButton.intrinsicContentSize.width + 5)
+              .horizontally(Self.horizontalSpacing )
               .sizeToFit(.width)
+            
+            actionButton.pin
+                .horizontally(45)
+                .sizeToFit(.width)
+                .minHeight(25)
+                .below(of: inactiveLabel)
+                .marginTop(60)
         }
-        actionButton.pin
-            .horizontally(45)
-            .sizeToFit(.width)
-            .minHeight(25)
-            .below(of: container)
-            .marginTop(20)
     
-        scrollView.contentSize = CGSize(width: scrollView.bounds.width, height: actionButton.frame.maxY)
+        scrollView.contentSize = CGSize(width: scrollView.bounds.width, height: container.frame.maxY)
     }
 }
 
@@ -264,6 +265,14 @@ class GreenCertificateView: UIView, ViewControllerModellableView {
 
 private extension GreenCertificateView {
     enum Style {
+        
+        static func containerHeader(_ view: UIView) {
+          view.backgroundColor = Palette.purple
+          view.layer.cornerRadius = SharedStyle.cardCornerRadius
+          view.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+          view.clipsToBounds = true
+            view.layer.zPosition = 1000
+        }
         
         static func actionButton(
           _ button: ButtonWithInsets,
@@ -319,7 +328,7 @@ private extension GreenCertificateView {
                 label,
                 content: text,
                 style: TextStyles.navbarSmallTitle.byAdding(
-                    .color(Palette.grayDark),
+                    .color(Palette.white),
                     .alignment(.center)
                 ),
                 numberOfLines: 1
