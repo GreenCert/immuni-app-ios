@@ -24,6 +24,7 @@ class HomeView: UIView, ViewControllerModellableView {
 
   let collection = UICollectionView(frame: .zero, collectionViewLayout: CollectionWithStickyCellsLayout())
 
+  var didTapGreenCertificate: Interaction?
   var didTapActivateService: Interaction?
   var didTapInfo: CustomInteraction<HomeVM.InfoKind>?
   var didTapDoToday: CustomInteraction<HomeVM.DoTodayKind>?
@@ -161,6 +162,7 @@ extension HomeView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayo
       let cell = collectionView.dequeueReusableCell(HomeServiceActiveCell.self, for: indexPath)
       cell.model = cellModel as? HomeServiceActiveCellVM
       cell.didTapAction = { [weak self] in self?.didTapActivateService?() }
+      cell.didTapGreenCertificate = { [weak self] in self?.didTapGreenCertificate?() }
       return cell
 
     case .infoHeader:

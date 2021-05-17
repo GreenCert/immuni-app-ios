@@ -23,29 +23,11 @@ struct GreenCertificateVM: ViewModelWithLocalState {
 
     var greenCertificate: String?
 
-    enum StatusGreenCertificate: Int {
-      case active
-      case inactive
-
-      var title: String {
-        switch self {
-        case .active:
-          return "Attivo"
-        case .inactive:
-          return "Non Attivo"
-        }
-      }
-    }
-
-    /// The currently status.
-    var status: StatusGreenCertificate
-
 }
 
 extension GreenCertificateVM {
     init?(state : AppState?, localState: GreenCertificateLS) {
         isLoading = localState.isLoading
-        self.status = .inactive
         self.greenCertificate = state?.user.greenCertificate
     }
 }
@@ -80,7 +62,7 @@ class GreenCertificateView: UIView, ViewControllerModellableView {
     
     var didTapBack: Interaction?
 
-    var didTapGenerate: Interaction?
+    var didTapRetriveGreenCertificate: Interaction?
 
 
     // MARK: - Setup
@@ -103,7 +85,7 @@ class GreenCertificateView: UIView, ViewControllerModellableView {
         scrollView.addSubview(container)
 
         actionButton.on(.touchUpInside) { [weak self] _ in
-            self?.didTapGenerate?()
+            self?.didTapRetriveGreenCertificate?()
            }
         closeButton.on(.touchUpInside) { [weak self] _ in
           self?.didTapBack?()
@@ -175,8 +157,6 @@ class GreenCertificateView: UIView, ViewControllerModellableView {
           qrCode.removeFromSuperview()
           Self.Style.stateLabel(stateLabel,text: "Non attivo", color: Palette.grayPurple)
         }
-        
-        Self.Style.stateLabel(stateLabel,text: model.status == .active ? "Attivo" : "Non attivo", color: model.status == .active ? Palette.purple : Palette.grayPurple)
         
         setNeedsLayout()
     }

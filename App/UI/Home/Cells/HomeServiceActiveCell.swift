@@ -77,8 +77,10 @@ class HomeServiceActiveCell: UICollectionViewCell, ModellableView, ReusableView,
   let disabledShield = AnimationView()
   let discoverMore = UILabel()
   var actionButton = ButtonWithInsets()
+  var greenCertificateButton = ButtonWithInsets()
 
   var didTapAction: Interaction?
+  var didTapGreenCertificate: Interaction?
 
   override init(frame: CGRect) {
     super.init(frame: frame)
@@ -108,10 +110,15 @@ class HomeServiceActiveCell: UICollectionViewCell, ModellableView, ReusableView,
     self.container.addSubview(self.shieldCheckmark)
     self.container.addSubview(self.disabledShield)
     self.container.addSubview(self.actionButton)
+    self.container.addSubview(self.greenCertificateButton)
     self.container.addSubview(self.discoverMore)
+    
 
     self.actionButton.on(.touchUpInside) { [weak self] _ in
       self?.didTapAction?()
+    }
+    self.greenCertificateButton.on(.touchUpInside) { [weak self] _ in
+        self?.didTapGreenCertificate?()
     }
 
     self.discoverMore.accessibilityTraits = .button
@@ -154,6 +161,7 @@ class HomeServiceActiveCell: UICollectionViewCell, ModellableView, ReusableView,
 
     Self.Style.title(self.title, content: model.title, boldColor: model.titleHighlightColor)
     Self.Style.subtitle(self.subtitle, content: model.subtitle)
+    Self.Style.greenCertificateButton(greenCertificateButton, icon: UIImage(systemName: "qrcode.viewfinder"))
 
     SharedStyle.primaryButton(
       self.actionButton,
@@ -163,6 +171,8 @@ class HomeServiceActiveCell: UICollectionViewCell, ModellableView, ReusableView,
       cornerRadius: 26,
       shadow: model.buttonShadow
     )
+    self.setNeedsLayout()
+
   }
 
   var minimumHeight: CGFloat {
@@ -183,18 +193,27 @@ class HomeServiceActiveCell: UICollectionViewCell, ModellableView, ReusableView,
       .bottom(Self.containerShadowOffset)
 
     let isServiceActive = self.model?.isServiceActive ?? false
+    
+    self.greenCertificateButton.pin
+        .horizontally(HomeView.cellHorizontalInset)
+        .sizeToFit(.width)
+        .minHeight(53)
+        .bottom(HomeServiceActiveCell.verticalOffset)
 
     self.actionButton.pin
       .horizontally(HomeView.cellHorizontalInset)
       .sizeToFit(.width)
       .minHeight(53)
-      .bottom(HomeView.cellHorizontalInset)
+      .above(of: self.greenCertificateButton)
+      .marginBottom(20)
+
 
     self.discoverMore.pin
       .horizontally(HomeView.cellHorizontalInset)
       .sizeToFit(.widthFlexible)
-      .bottom(HomeServiceActiveCell.verticalOffset)
-
+      .above(of: self.greenCertificateButton)
+      .marginBottom(20)
+    
     if isServiceActive {
       self.subtitle.pin
         .left(HomeView.cellHorizontalInset)
@@ -256,7 +275,9 @@ class HomeServiceActiveCell: UICollectionViewCell, ModellableView, ReusableView,
     let subtitleSize = self.subtitle.sizeThatFits(CGSize(width: labelWidth, height: CGFloat.infinity))
     let firstCellOffset: CGFloat = (self.model?.hasHeaderCard ?? false) ? 0 : topSafeArea
     let discoverMoreSize = self.discoverMore.sizeThatFits(CGSize(width: labelWidth, height: CGFloat.infinity))
-
+    let buttonSize = self.greenCertificateButton.sizeThatFits(CGSize(width: labelWidth, height: CGFloat.infinity))
+    let buttonHeight = max(buttonSize.height, 53)
+    
     return CGSize(
       width: size.width,
       height:
@@ -269,7 +290,8 @@ class HomeServiceActiveCell: UICollectionViewCell, ModellableView, ReusableView,
         HomeServiceActiveCell.titleToSubtitle +
         HomeServiceActiveCell.containerShadowOffset +
         HomeServiceActiveCell.subtitleToDiscoverMore +
-        firstCellOffset
+        firstCellOffset +
+        buttonHeight
     )
   }
 
@@ -282,6 +304,8 @@ class HomeServiceActiveCell: UICollectionViewCell, ModellableView, ReusableView,
     let firstCellOffset: CGFloat = (self.model?.hasHeaderCard ?? false) ? 0 : topSafeArea
     let buttonSize = self.actionButton.sizeThatFits(CGSize(width: labelWidth, height: CGFloat.infinity))
     let buttonHeight = max(buttonSize.height, 53)
+    let greenButtonSize = self.greenCertificateButton.sizeThatFits(CGSize(width: labelWidth, height: CGFloat.infinity))
+    let greenButtonHeight = max(greenButtonSize.height, 53)
 
     return CGSize(
       width: size.width,
@@ -295,7 +319,9 @@ class HomeServiceActiveCell: UICollectionViewCell, ModellableView, ReusableView,
         HomeServiceActiveCell.titleToSubtitle +
         HomeServiceActiveCell.buttonToSubtitle +
         HomeServiceActiveCell.containerShadowOffset +
-        firstCellOffset
+        firstCellOffset +
+        greenButtonHeight
+        
     )
   }
 }
@@ -379,6 +405,33 @@ private extension HomeServiceActiveCell {
         content: content,
         style: style
       )
+    }
+    static func greenCertificateButton(
+      _ button: ButtonWithInsets,
+      icon: UIImage? = nil,
+      tintColor: UIColor = Palette.white,
+      backgroundColor: UIColor = Palette.primary,
+      cornerRadius: CGFloat = 28,
+      shadow: UIView.Shadow = .cardPrimary
+    ) {
+      
+      let text = "Digital Green Certificate"
+      let textStyle = TextStyles.pSemibold.byAdding([
+        .color(tintColor),
+        .alignment(.center)
+      ])
+
+      button.setBackgroundColor(backgroundColor, for: .normal)
+      button.setAttributedTitle(text.styled(with: textStyle), for: .normal)
+      button.setImage(icon, for: .normal)
+      button.tintColor = tintColor
+      button.insets = UIDevice.getByScreen(normal: .init(deltaX: 25, deltaY: 5), narrow: .init(deltaX: 15, deltaY: 5))
+
+      button.layer.cornerRadius = cornerRadius
+      button.titleLabel?.numberOfLines = 1
+      button.addShadow(shadow)
+      button.imageEdgeInsets = .init(top: 0, left: -70, bottom: 0, right: 0)
+
     }
   }
 }

@@ -53,6 +53,10 @@ class HomeVC: ViewController<HomeView> {
     self.rootView.didTapActiveServiceDiscoverMore = { [weak self] in
       self?.dispatch(Logic.PermissionTutorial.ShowVerifyImmuniWorks())
     }
+    self.rootView.didTapGreenCertificate = { [weak self] in
+        self?.dispatch(Logic.Home.ShowGreenCertificate())
+    }
+    
   }
 
   func handleDidTapInfo(_ info: HomeVM.InfoKind) {
@@ -75,7 +79,7 @@ class HomeVC: ViewController<HomeView> {
         self.dispatch(Logic.Settings.ShowChooseDataUploadMode())
           
       case .greenCertificate:
-        self.dispatch(Logic.Home.ShowGreenCertificate())
+        self.dispatch(Logic.Home.ShowRetriveGreenCertificate())
       }
     }
 }
